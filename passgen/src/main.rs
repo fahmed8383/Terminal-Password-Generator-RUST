@@ -2,8 +2,8 @@ use std::env;
 
 // Import modules
 mod print;
-mod process;
 mod json;
+mod random;
 
 // Main function
 fn main() {
@@ -30,8 +30,12 @@ fn main() {
             "-g" => {
                 // Check to make sure we have a valid arg2
                 if valid_arg2(args_len, &args) {
-                    // Add new password
-                    json::add_password(&args[2], "bcd");
+                    
+                    // Generate new password string
+                    let pass = random::gen_random_string();
+
+                    // Add password to pass.json
+                    json::add_password(&args[2], &pass);
                 }
             }
             "-flags" => {
