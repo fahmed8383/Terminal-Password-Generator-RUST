@@ -3,7 +3,7 @@ use std::env;
 // Import modules
 mod print;
 mod process;
-
+mod json;
 
 // Main function
 fn main() {
@@ -28,7 +28,11 @@ fn main() {
         // Match the flag to run the appropriate code
         match &arg_1[..] {
             "-g" => {
-                process::generate(args_len, &args);
+                // Check to make sure we have a valid arg2
+                if valid_arg2(args_len, &args) {
+                    // Add new password
+                    json::add_password(&args[2], "bcd");
+                }
             }
             "-flags" => {
                 print::flags();
@@ -41,6 +45,36 @@ fn main() {
 
     // Otherwise output the password for the specified name (default flag)
     else {
-        println!("Here is your password");
+
+        // Get the password for the appropriate name if it exists from json file
+        let pass = json::get_password(arg_1);
+
+        // If it does not exist print error and exit
+        if pass == "No such password name exists" {
+            println!("No such password name exists");
+            return;
+        }
+
+        println!("{}", pass);
     }
+}
+
+// Check to make sure the second argument of certain flags is valid
+pub fn valid_arg2(args_len: usize, args: &Vec<String>) -> bool {
+
+    // To have a second argument we need 3 arguments
+    if args_len != 3 {
+        print::usage();
+        return false;
+    }
+
+    let arg_2 = &args[2];
+
+    // Check to make sure the name of the password does not start with a -
+    if arg_2.chars().nth(0).unwrap() == '-' {
+        println!("password name cannot start with -");
+        return false;
+    }
+
+    return true;
 }
