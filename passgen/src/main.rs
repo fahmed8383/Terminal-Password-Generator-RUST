@@ -4,6 +4,7 @@ use std::env;
 mod print;
 mod json;
 mod random;
+mod encryption;
 
 // Main function
 fn main() {
@@ -31,11 +32,16 @@ fn main() {
                 // Check to make sure we have a valid arg2
                 if valid_arg2(args_len, &args) {
                     
-                    // Generate new password string
+                    // Generate new password string and output it
+                    // to terminal
                     let pass = random::gen_random_string();
+                    println!("{}", pass);
+                    
+                    // Encrypt password with basic shift cipher
+                    let encrypted = encryption::encrypt_pass(pass, String::from("$#@1a"));
 
-                    // Add password to pass.json
-                    json::add_password(&args[2], &pass);
+                    // Add encrypted password to pass.json
+                    json::add_password(&args[2], &encrypted);
                 }
             }
             "-flags" => {
@@ -59,7 +65,10 @@ fn main() {
             return;
         }
 
-        println!("{}", pass);
+        // Decrypt password with basic shift cipher and print decrypted
+        // password to the terminal.
+        let decrypted = encryption::decrypt_pass(pass, String::from("$#@1a"));
+        println!("{}", decrypted);
     }
 }
 
