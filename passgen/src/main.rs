@@ -92,13 +92,13 @@ fn main() {
             }
 
             // Print out a list of all password names that are saved.
-            "-list" => {
+            "--list" => {
                 let pass_list = json::get_password_list();
                 println!("The following passwords are available: {:?}", pass_list);
             }
 
             // Print out all valid flags for the command
-            "-flags" => {
+            "--flags" => {
                 print::flags();
             }
 

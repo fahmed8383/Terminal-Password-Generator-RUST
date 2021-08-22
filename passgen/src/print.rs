@@ -5,13 +5,16 @@ pub fn usage() {
     you want to store the password under alongside the -g flag\n\n\
     Example usage for getting existing password:\npassgen test\n\n\
     Example usage for generating a new password:\npassgen -g test\n\n\
+    Example usage for deleting a password:\npassgen -d test\n\n\
     For a list of other flags that can be used, type:\n\
-    passgen -flags");
+    passgen --flags");
 }
 
 // Print a list of all valid flags
 pub fn flags() {
-    println!("Invalid flag. The following flags can be used:\n\n\
-    -g : Generate a new password\n\
-    -flags: print a list of all flags\n");
+    println!("The following flags can be used:\n\n\
+    -g : Generate a new password with the specified name\n\
+    -d : Delete the password with the specified name\n\
+    --list: List all passwords that are currently saved\n\
+    --flags: print a list of all flags\n");
 }
