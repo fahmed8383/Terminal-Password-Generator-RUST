@@ -5,6 +5,7 @@ mod print;
 mod json;
 mod random;
 mod encryption;
+mod authenticate;
 
 // Main function
 fn main() {
@@ -41,6 +42,16 @@ fn main() {
                         println!("Password with name {} already exists", &args[2]);
                         return;
                     }
+
+                    // Get encryption key from user, ask for key twice to confirm.
+                    let key = authenticate::get_key_confirm();
+
+                    // If both keys that are entered do not match print error
+                    // and exit.
+                    if key == String::from("Passwords do not match") {
+                        println!("Error: Keys do not match. No password generated");
+                        return;
+                    }
                     
                     // Generate new password string and output it
                     // to terminal
@@ -48,7 +59,7 @@ fn main() {
                     println!("{}", pass);
                     
                     // Encrypt password with basic shift cipher
-                    let encrypted = encryption::encrypt_pass(pass, String::from("$#@1a"));
+                    let encrypted = encryption::encrypt_pass(pass, key);
 
                     // Add encrypted password to pass.json.
                     // json_vals Struct is owned and consumed.
@@ -76,6 +87,9 @@ fn main() {
             println!("No such password name exists");
             return;
         }
+        
+        // Get decryption key from user.
+        let key = authenticate::get_key();
 
         // Get the password for the appropriate name from json file.
         // json_vals Struct is owned and consumed.
@@ -83,7 +97,7 @@ fn main() {
 
         // Decrypt password with basic shift cipher and print decrypted
         // password to the terminal.
-        let decrypted = encryption::decrypt_pass(pass, String::from("$#@1a"));
+        let decrypted = encryption::decrypt_pass(pass, key);
         println!("{}", decrypted);
     }
 }
