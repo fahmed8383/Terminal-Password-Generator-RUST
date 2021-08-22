@@ -6,48 +6,44 @@ use std::io::Write;
 use std::io::Read;
 
 #[derive(Debug, Deserialize, Serialize)]
-struct JSON {
+pub struct JSON {
     passwords: Vec<Passwords>
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-struct Passwords {
+pub struct Passwords {
     name: String,
     pass: String,
 }
 
-// If a password name exists in the JSON file return the corresponding password
-pub fn get_password(name: &str) -> String {
+// Check if JSON struct contains the corresponding password name.
+pub fn pass_exists(name: &str, json_vals: &JSON) -> bool {
 
-    // Generate the JSON struct by parsing the json file
-    let json_vals: JSON = parse_passwords();
+    // Loop through json_vals without consuming the values.
+    for password in json_vals.passwords.iter() {
+        if password.name == name {
+            return true;
+        }
+    }
 
-    // Check if JSON struct contains the corresponding password name, if it does
-    // return it. Consume the struct on iter.
+    return false;
+}
+
+// Return the corresponding password for the password name in json_vals
+pub fn get_password(name: &str, json_vals: JSON) -> String {
+
+    // Consume the struct on iter.
     for password in json_vals.passwords.into_iter() {
         if password.name == name {
             return password.pass;
         }
     }
 
-    // If password name does not exist in JSON struct return error message
     return String::from("No such password name exists");
 }
 
-// Adds a password with the corresponding name and value if it does not already exit
-pub fn add_password(name: &str, pass: &str) {
-
-    // Generate the JSON struct by parsing the json file
-    let mut json_vals: JSON = parse_passwords();
-
-    // Check if JSON struct contains the corresponding password name already,
-    // if it does, exit.
-    for password in json_vals.passwords.iter() {
-        if password.name == name {
-            println!("Password with name {} already exists", name);
-            return;
-        }
-    }
+// Adds a password with the corresponding name and value
+pub fn add_password(name: &str, pass: &str, mut json_vals: JSON) {
 
     // Create a new passwords struct to save the new password entry and add it to the JSON.passwords
     // vector.
@@ -61,7 +57,7 @@ pub fn add_password(name: &str, pass: &str) {
 }
 
 // Parse the json file into the JSON struct
-fn parse_passwords() -> JSON {
+pub fn parse_passwords() -> JSON {
 
     // Open and read file into a string
     let mut file = File::open("pass.json").unwrap();

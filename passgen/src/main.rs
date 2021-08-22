@@ -31,6 +31,16 @@ fn main() {
             "-g" => {
                 // Check to make sure we have a valid arg2
                 if valid_arg2(args_len, &args) {
+
+                    // Generate the JSON struct by parsing the json file
+                    let json_vals: json::JSON = json::parse_passwords();
+
+                    // If password already exists return error.
+                    // json_vals Struct is passed by borrowing.
+                    if json::pass_exists(&args[2], &json_vals) {
+                        println!("Password with name {} already exists", &args[2]);
+                        return;
+                    }
                     
                     // Generate new password string and output it
                     // to terminal
@@ -40,8 +50,9 @@ fn main() {
                     // Encrypt password with basic shift cipher
                     let encrypted = encryption::encrypt_pass(pass, String::from("$#@1a"));
 
-                    // Add encrypted password to pass.json
-                    json::add_password(&args[2], &encrypted);
+                    // Add encrypted password to pass.json.
+                    // json_vals Struct is owned and consumed.
+                    json::add_password(&args[2], &encrypted, json_vals);
                 }
             }
             "-flags" => {
@@ -56,14 +67,19 @@ fn main() {
     // Otherwise output the password for the specified name (default flag)
     else {
 
-        // Get the password for the appropriate name if it exists from json file
-        let pass = json::get_password(arg_1);
+        // Generate the JSON struct by parsing the json file
+        let json_vals: json::JSON = json::parse_passwords();
 
-        // If it does not exist print error and exit
-        if pass == "No such password name exists" {
+        // If password does not exist return error.
+        // json_vals Struct is passed by borrowing.
+        if !json::pass_exists(arg_1, &json_vals) {
             println!("No such password name exists");
             return;
         }
+
+        // Get the password for the appropriate name from json file.
+        // json_vals Struct is owned and consumed.
+        let pass = json::get_password(arg_1, json_vals);
 
         // Decrypt password with basic shift cipher and print decrypted
         // password to the terminal.
