@@ -29,6 +29,8 @@ fn main() {
                 
         // Match the flag to run the appropriate code
         match &arg_1[..] {
+
+            // Generate new password
             "-g" => {
                 // Check to make sure we have a valid arg2
                 if valid_arg2(args_len, &args) {
@@ -66,9 +68,40 @@ fn main() {
                     json::add_password(&args[2], &encrypted, json_vals);
                 }
             }
+
+            // Delete existing password
+            "-d" => {
+
+                // Check to make sure we have a valid arg2
+                if valid_arg2(args_len, &args) {
+
+                    // Generate the JSON struct by parsing the json file
+                    let json_vals: json::JSON = json::parse_passwords();
+
+                    // If password does not exists return error.
+                    // json_vals Struct is passed by borrowing.
+                    if !json::pass_exists(&args[2], &json_vals) {
+                        println!("No such password name exists");
+                        return;
+                    }
+
+                    // Remove password from pass.json.
+                    // json_vals Struct is owned and consumed.
+                    json::delete_password(&args[2], json_vals);
+                }
+            }
+
+            // Print out a list of all password names that are saved.
+            "-list" => {
+                let pass_list = json::get_password_list();
+                println!("The following passwords are available: {:?}", pass_list);
+            }
+
+            // Print out all valid flags for the command
             "-flags" => {
                 print::flags();
             }
+
             _ => {
                 print::flags();
             }

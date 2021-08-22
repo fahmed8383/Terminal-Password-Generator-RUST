@@ -56,6 +56,52 @@ pub fn add_password(name: &str, pass: &str, mut json_vals: JSON) {
     file.write_all(&file_content.as_bytes()).expect("Unable to write to json file ");
 }
 
+// Deletes password entry with the corresponding name
+pub fn delete_password(name: &str, mut json_vals: JSON) {
+
+    // Init remove_pos to be outside of possible values it can get.
+    // This value will always update since we make sure the name
+    // exists before calling this function.
+    let mut remove_pos = json_vals.passwords.len() + 1;
+
+    // Enumerate through json_vals without consuming the values.
+    for (i, password) in json_vals.passwords.iter().enumerate() {
+
+        // Update the remove_pos when we find the password with the
+        // correct name.
+        if password.name == name {
+            remove_pos = i;
+        }
+    }
+
+    // Remove the corresponding password with the name from the list
+    json_vals.passwords.remove(remove_pos);
+
+    // Write back passwords with the corresponding password remvoed to the pass.json file
+    let file_content = serde_json::to_string(&json_vals).expect("Unable to turn JSON struct into string");
+    let mut file = File::create("pass.json").unwrap();
+    file.write_all(&file_content.as_bytes()).expect("Unable to write to json file ");
+}
+
+// Return a list of all saved password names
+pub fn get_password_list() -> Vec<String> {
+
+    // Init vector to save names in
+    let mut pass_list = Vec::new();
+
+    // Generate the JSON struct by parsing the json file
+    let json_vals = parse_passwords();
+
+    // Loop through all passwords
+    // Consume the struct on iter.
+    for password in json_vals.passwords.into_iter() {
+        pass_list.push(password.name);
+    }
+
+    // Return password lisr
+    return pass_list;
+}
+
 // Parse the json file into the JSON struct
 pub fn parse_passwords() -> JSON {
 
