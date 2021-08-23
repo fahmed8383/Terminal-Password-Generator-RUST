@@ -50,9 +50,12 @@ pub fn add_password(name: &str, pass: &str, mut json_vals: JSON) {
     let new_pass: Passwords = Passwords { name: String::from(name), pass: String::from(pass) };
     json_vals.passwords.push(new_pass);
 
+    // Get pass.json path
+    let build_path = get_directory();
+
     // Write passwords with the new password added to the pass.json file
     let file_content = serde_json::to_string(&json_vals).expect("Unable to turn JSON struct into string");
-    let mut file = File::create("pass.json").unwrap();
+    let mut file = File::create(build_path).unwrap();
     file.write_all(&file_content.as_bytes()).expect("Unable to write to json file ");
 }
 
@@ -77,9 +80,12 @@ pub fn delete_password(name: &str, mut json_vals: JSON) {
     // Remove the corresponding password with the name from the list
     json_vals.passwords.remove(remove_pos);
 
+    // Get pass.json path
+    let build_path = get_directory();
+
     // Write back passwords with the corresponding password remvoed to the pass.json file
     let file_content = serde_json::to_string(&json_vals).expect("Unable to turn JSON struct into string");
-    let mut file = File::create("pass.json").unwrap();
+    let mut file = File::create(build_path).unwrap();
     file.write_all(&file_content.as_bytes()).expect("Unable to write to json file ");
 }
 
@@ -105,8 +111,11 @@ pub fn get_password_list() -> Vec<String> {
 // Parse the json file into the JSON struct
 pub fn parse_passwords() -> JSON {
 
+    // Get pass.json path
+    let build_path = get_directory();
+
     // Open and read file into a string
-    let mut file = File::open("pass.json").unwrap();
+    let mut file = File::open(build_path).unwrap();
     let mut file_content = String::new();
     file.read_to_string(&mut file_content).unwrap();
 
@@ -115,4 +124,23 @@ pub fn parse_passwords() -> JSON {
 
     // Return the struct
     return json_vals;
+}
+
+// Check if the PASSGEN_PATH variable is set during
+// compile time, if it is change file path to the
+// variable
+fn get_directory() -> String {
+    let mut build_path;
+
+    match option_env!("PASSGEN_PATH") {
+        Some(val) => {
+            build_path = String::from(val);
+            build_path.push_str("pass.json");
+        }
+        None => {
+            build_path = String::from("pass.json");
+        }
+    }
+
+    return build_path;
 }
